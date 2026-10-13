@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>日文單字個人 App</title>
+  <title>日文單字 Master</title>
   <style>
     :root {
       --bg-color: #0f172a;
@@ -67,7 +67,6 @@
       gap: 20px;
     }
 
-    /* 導覽列 */
     nav {
       position: fixed;
       bottom: 0;
@@ -103,7 +102,6 @@
       fill: currentColor;
     }
 
-    /* 卡片通用樣式 */
     .card {
       background-color: var(--card-bg);
       border: 1px solid var(--border-color);
@@ -112,7 +110,6 @@
       position: relative;
     }
 
-    /* 單字卡特有樣式 */
     .flashcard {
       min-height: 250px;
       display: flex;
@@ -200,7 +197,6 @@
       line-height: 1.4;
     }
 
-    /* 音訊按鈕 */
     .audio-btn {
       background: none;
       border: none;
@@ -211,7 +207,6 @@
       font-size: 1rem;
     }
 
-    /* 選項風格 */
     .quiz-options {
       display: flex;
       flex-direction: column;
@@ -248,7 +243,6 @@
       color: var(--accent-red);
     }
 
-    /* 配對遊戲風格 */
     .match-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -274,7 +268,6 @@
       visibility: hidden;
     }
 
-    /* 按鈕樣式 */
     .btn {
       background-color: var(--accent-color);
       color: #0f172a;
@@ -339,7 +332,6 @@
           <option value="N4">N4</option>
           <option value="N3">N3</option>
           <option value="N2">N2</option>
-          <option value="N1">N1</option>
         </select>
       </div>
       <div class="card flashcard" id="flashcard" onclick="flipCard()"></div>
@@ -353,7 +345,7 @@
     <section id="matchSec" class="hidden">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
         <h3>🎮 配對連連看</h3>
-        <button class="btn" onclick="loadCSVFromGitHub()">重新整理單字</button>
+        <button class="btn" onclick="startMatchGame()">重新開始</button>
       </div>
       <div class="match-grid" id="matchGrid"></div>
     </section>
@@ -367,16 +359,18 @@
       <div class="card" id="quizCard"></div>
     </section>
 
-    <!-- 5. 設定與 GitHub 同步狀態 -->
+    <!-- 5. 設定 -->
     <section id="settingSec" class="hidden">
       <h3>⚙️ 設定與同步</h3>
       <div class="card" style="margin-top:10px;">
         <p style="font-size:0.88rem; color:var(--text-sub); margin-bottom:15px; line-height:1.6;">
-          目前單字庫讀取自 GitHub 目錄：<br>
-          <code style="color:var(--accent-color);">/csv/words.csv</code><br><br>
-          只要你在電腦上更新該檔案並 push 到 GitHub，手機重新整理網頁就會自動載入最新單字！
+          自動讀取目錄：<br>
+          <code style="color:var(--accent-color);">/csv/vocab-n5.csv</code><br>
+          <code style="color:var(--accent-color);">/csv/vocab-n4.csv</code><br>
+          <code style="color:var(--accent-color);">/csv/vocab-n3.csv</code><br>
+          <code style="color:var(--accent-color);">/csv/vocab-n2.csv</code>
         </p>
-        <button class="btn" onclick="loadCSVFromGitHub()">🔄 從 GitHub 重新載入單字</button>
+        <button class="btn" onclick="loadAllCSVsFromFolder()">🔄 重新整理並更新單字庫</button>
       </div>
     </section>
   </main>
@@ -395,29 +389,23 @@
       配對遊戲
     </button>
     <button class="nav-btn" onclick="switchTab('quizSec', this)">
-      <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 2 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
       測驗
     </button>
     <button class="nav-btn" onclick="switchTab('settingSec', this)">
-      <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c-.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
       設定
     </button>
   </nav>
 
   <script>
-    const defaultWords = [
-      { word: "慣れる", other_forms: "慣れます", reading: "なれる", meaning: "習慣、適應", level: "N4", pos: "動詞・一段動詞", example_ja: "日本に来て三か月、やっと生活に慣れてきた。", example_en: "It has been three months since I came to Japan, and I've finally gotten used to life here.", srs_level: 0, starred: false, wrong: false },
-      { word: "散歩", other_forms: "散歩する", reading: "さんぽ", meaning: "散步", level: "N5", pos: "名詞・サ變動詞", example_ja: "毎朝公園を散歩します。", example_en: "I take a walk in the park every morning.", srs_level: 0, starred: false, wrong: false }
-    ];
-
-    let words = JSON.parse(localStorage.getItem("jp_words")) || defaultWords;
+    let words = JSON.parse(localStorage.getItem("jp_words")) || [];
     let filteredWords = [...words];
     let cardIndex = 0;
     let isFlipped = false;
 
     function init() {
-      // 啟動時自動從 GitHub 抓取最新 CSV
-      loadCSVFromGitHub();
+      loadAllCSVsFromFolder();
     }
 
     function saveWords() {
@@ -451,22 +439,47 @@
       }
     }
 
-    /* 從 GitHub 自動讀取 /csv/words.csv */
-    function loadCSVFromGitHub() {
-      fetch('./csv/words.csv')
-        .then(response => {
-          if (!response.ok) throw new Error("無法讀取 CSV 檔案");
-          return response.text();
-        })
-        .then(text => {
-          parseAndLoadCSVText(text);
-        })
-        .catch(error => {
-          console.warn("自動讀取 GitHub 失敗，使用本地暫存或預設資料:", error);
-          updateGlobalStats();
-          renderDailyTask();
-          renderFlashCard();
-        });
+    /* 讀取 /csv/ 目錄下的 four CSV 檔案 */
+    function loadAllCSVsFromFolder() {
+      const csvFiles = [
+        { path: './csv/vocab-n5.csv', defaultLevel: 'N5' },
+        { path: './csv/vocab-n4.csv', defaultLevel: 'N4' },
+        { path: './csv/vocab-n3.csv', defaultLevel: 'N3' },
+        { path: './csv/vocab-n2.csv', defaultLevel: 'N2' }
+      ];
+
+      let loadedCount = 0;
+      let allParsedWords = [];
+
+      csvFiles.forEach(fileObj => {
+        fetch(fileObj.path)
+          .then(res => {
+            if (!res.ok) throw new Error(`讀取 ${fileObj.path} 失敗`);
+            return res.text();
+          })
+          .then(text => {
+            const parsed = parseCSVText(text, fileObj.defaultLevel);
+            allParsedWords = allParsedWords.concat(parsed);
+          })
+          .catch(err => {
+            console.warn(err.message);
+          })
+          .finally(() => {
+            loadedCount++;
+            if (loadedCount === csvFiles.length) {
+              if (allParsedWords.length > 0) {
+                mergeWords(allParsedWords);
+              } else if (words.length === 0) {
+                console.warn("未抓取到 CSV，且沒有快取資料");
+              }
+              updateGlobalStats();
+              dailyList = [];
+              dailyIndex = 0;
+              renderDailyTask();
+              filterWords();
+            }
+          });
+      });
     }
 
     function parseCSVLine(text) {
@@ -488,9 +501,9 @@
       return result.map(f => f.replace(/^\ufeff/, '').replace(/^"|"$/g, '').trim());
     }
 
-    function parseAndLoadCSVText(text) {
+    function parseCSVText(text, defaultLevel) {
       const lines = text.split(/\r\n|\n/).map(l => l.trim()).filter(l => l.length > 0);
-      if (lines.length < 1) return;
+      if (lines.length < 1) return [];
 
       const headers = parseCSVLine(lines[0]).map(h => h.toLowerCase());
       const findCol = (keywords) => {
@@ -516,52 +529,60 @@
         wordIdx = 0; readingIdx = 1; meaningIdx = 2; levelIdx = 3; posIdx = 4; otherIdx = 5; exJaIdx = 6; exEnIdx = 7;
       }
 
-      // 保留原有的學習進度 (srs_level, starred, wrong)
-      const oldWordsMap = new Map(words.map(w => [w.word, w]));
-
-      let newWords = [];
+      let parsedList = [];
       for (let i = startIndex; i < lines.length; i++) {
         const cols = parseCSVLine(lines[i]);
         const wVal = wordIdx !== -1 ? cols[wordIdx] : cols[0];
         const mVal = meaningIdx !== -1 ? cols[meaningIdx] : cols[2];
 
         if (wVal) {
-          let existing = oldWordsMap.get(wVal) || {};
-          newWords.push({
+          parsedList.push({
             word: wVal || '',
             reading: readingIdx !== -1 && cols[readingIdx] !== undefined ? cols[readingIdx] : (cols[1] || ''),
             meaning: mVal || '',
-            level: levelIdx !== -1 && cols[levelIdx] !== undefined ? cols[levelIdx] : (cols[3] || 'N5'),
+            level: levelIdx !== -1 && cols[levelIdx] ? cols[levelIdx] : defaultLevel,
             pos: posIdx !== -1 && cols[posIdx] !== undefined ? cols[posIdx] : (cols[4] || ''),
             other_forms: otherIdx !== -1 && cols[otherIdx] !== undefined ? cols[otherIdx] : (cols[5] || ''),
             example_ja: exJaIdx !== -1 && cols[exJaIdx] !== undefined ? cols[exJaIdx] : (cols[6] || ''),
-            example_en: exEnIdx !== -1 && cols[exEnIdx] !== undefined ? cols[exEnIdx] : (cols[7] || ''),
-            srs_level: existing.srs_level || 0,
-            starred: existing.starred || false,
-            wrong: existing.wrong || false
+            example_en: exEnIdx !== -1 && cols[exEnIdx] !== undefined ? cols[exEnIdx] : (cols[7] || '')
           });
         }
       }
-
-      if (newWords.length > 0) {
-        words = newWords;
-        saveWords();
-        dailyList = [];
-        dailyIndex = 0;
-        renderDailyTask();
-        renderFlashCard();
-      }
+      return parsedList;
     }
 
-    /* 1. 每日任務 */
+    function mergeWords(newParsedWords) {
+      const oldMap = new Map(words.map(w => [w.word, w]));
+      words = newParsedWords.map(nw => {
+        const old = oldMap.get(nw.word) || {};
+        return {
+          ...nw,
+          srs_level: old.srs_level || 0,
+          starred: old.starred || false,
+          wrong: old.wrong || false
+        };
+      });
+      saveWords();
+    }
+
+    /* 1. 每日任務 (修正選取邏輯，確保精準滿 30 字) */
     let dailyList = [];
     let dailyIndex = 0;
 
     function renderDailyTask() {
       const container = document.getElementById("dailyContainer");
+      if (words.length === 0) {
+        container.innerHTML = `<div class="card" style="text-align:center;">載入單字庫中...</div>`;
+        return;
+      }
+
       if (dailyList.length === 0) {
+        // 優先選取需要複習的單字 (srs_level > 0 且 < 5)
         const reviewWords = words.filter(w => w.srs_level > 0 && w.srs_level < 5).sort((a,b) => a.srs_level - b.srs_level);
+        // 新單字 (srs_level === 0)
         const newWords = words.filter(w => w.srs_level === 0);
+
+        // 合併並截取 30 個單字
         dailyList = [...reviewWords, ...newWords].slice(0, 30);
       }
 
@@ -663,9 +684,8 @@
 
     /* 2. 單字卡瀏覽 */
     function renderFlashCard() {
-      filteredWords = [...words];
       if (filteredWords.length === 0) {
-        document.getElementById("flashcard").innerHTML = `<div>載入中或沒有單字...</div>`;
+        document.getElementById("flashcard").innerHTML = `<div>目前沒有符合條件的單字</div>`;
         return;
       }
       const item = filteredWords[cardIndex];
