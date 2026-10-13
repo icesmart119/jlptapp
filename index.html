@@ -351,7 +351,7 @@
   </header>
 
   <main>
-    <!-- 1. 每日任務 (間隔重複 + JLPT等級多選) -->
+    <!-- 1. 每日任務 -->
     <section id="dailySec">
       <div style="margin-bottom:10px;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
@@ -359,7 +359,6 @@
           <span id="dailyProgress" style="font-size: 0.85rem; color: var(--text-sub);">進度: 0 / 30</span>
         </div>
         
-        <!-- JLPT 多選區域 -->
         <div class="checkbox-group">
           <span style="font-size:0.8rem; color:var(--text-sub); width:100%;">選擇練習等級：</span>
           <label class="checkbox-label"><input type="checkbox" value="N5" class="jlpt-check" checked onchange="resetDailyTask()"> N5</label>
@@ -389,14 +388,13 @@
       </div>
     </section>
 
-    <!-- 3. 錯誤列表與針對性複習 -->
+    <!-- 3. 錯誤列表與星級複習 -->
     <section id="wrongSec" class="hidden">
       <h3>❌ 錯題本與星級複習</h3>
       <p style="font-size:0.85rem; color:var(--text-sub); margin-top:4px; margin-bottom:12px;">
         根據答錯次數分級：⭐(1-2次) | ⭐⭐(3-4次) | ⭐⭐⭐(5次以上)
       </p>
 
-      <!-- 錯題星級多選篩選 -->
       <div class="checkbox-group">
         <span style="font-size:0.8rem; color:var(--text-sub); width:100%;">篩選複習星級：</span>
         <label class="checkbox-label"><input type="checkbox" value="1" class="star-check" checked onchange="renderWrongList()"> ⭐ 輕微錯誤</label>
@@ -456,13 +454,12 @@
       配對遊戲
     </button>
     <button class="nav-btn" onclick="switchTab('settingSec', this)">
-      <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6-3.6z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c-.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
       設定
     </button>
   </nav>
 
   <script>
-    // 間隔重複階段 (天數) : 1, 2, 4, 7, 15
     const SRS_INTERVALS = [0, 1, 2, 4, 7, 15];
 
     let words = JSON.parse(localStorage.getItem("jp_words")) || [];
@@ -497,6 +494,7 @@
 
     function speak(text) {
       if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel(); // 防止語音堆疊
         const utter = new SpeechSynthesisUtterance(text);
         utter.lang = 'ja-JP';
         window.speechSynthesis.speak(utter);
@@ -630,7 +628,7 @@
     }
 
     function isDueForReview(word, nowTime) {
-      if (word.srs_stage === 0) return false; // 從未學過的不算複習
+      if (word.srs_stage === 0) return false;
       return word.next_review_date <= nowTime;
     }
 
@@ -647,18 +645,12 @@
         return;
       }
 
-      // 依勾選的 JLPT 等級篩選單字
       const pool = words.filter(w => selectedLevels.includes(w.level));
 
       if (dailyList.length === 0) {
         const now = Date.now();
-        // 1. 撈出今天「時間到了需要複習」的單字
         const dueWords = pool.filter(w => isDueForReview(w, now)).sort((a,b) => a.next_review_date - b.next_review_date);
-        
-        // 2. 撈出從未學過的新單字 (srs_stage === 0)
         const newWords = pool.filter(w => w.srs_stage === 0);
-
-        // 優先放需要複習的單字，不足 30 個時由新單字補滿
         dailyList = [...dueWords, ...newWords].slice(0, 30);
       }
 
@@ -678,7 +670,6 @@
       const currWord = dailyList[dailyIndex];
 
       if (currWord.srs_stage === 0) {
-        // 新單字：GPT 情境測驗模式
         const wrongMeanings = words.filter(w => w.word !== currWord.word).map(w => w.meaning).filter(Boolean).sort(() => 0.5 - Math.random()).slice(0, 3);
         const options = [currWord.meaning, ...wrongMeanings].sort(() => 0.5 - Math.random());
 
@@ -694,7 +685,10 @@
               <div class="word-pos">${currWord.pos || ''}</div>
             </div>
             <div class="example-box">
-              <div style="font-weight:bold; font-size:0.85rem; color:var(--accent-color); margin-bottom:4px;">情境例句：</div>
+              <div style="font-weight:bold; font-size:0.85rem; color:var(--accent-color); margin-bottom:4px; display:flex; align-items:center; justify-content:space-between;">
+                <span>情境例句：</span>
+                ${currWord.example_ja ? `<button class="audio-btn" onclick="speak('${currWord.example_ja}')" style="font-size:0.9rem;">🔊 讀例句</button>` : ''}
+              </div>
               <div class="example-ja">${currWord.example_ja || '無例句'}</div>
               ${currWord.example_en ? `<div class="example-en">${currWord.example_en}</div>` : ''}
             </div>
@@ -705,7 +699,6 @@
           </div>
         `;
       } else {
-        // 複習卡片 (間隔重複)
         container.innerHTML = `
           <div class="card flashcard" onclick="this.querySelector('.word-meaning').classList.toggle('hidden')">
             <span class="tag" style="position:absolute; top:15px; left:15px;">🔄 階段 ${currWord.srs_stage} 複習 (${currWord.level})</span>
@@ -715,6 +708,9 @@
             <div class="word-meaning hidden" style="color:var(--accent-green); font-weight:bold; margin-top:15px;">
               ${currWord.meaning}
               <div class="example-box">
+                <div style="display:flex; align-items:center; justify-content:flex-end;">
+                  ${currWord.example_ja ? `<button class="audio-btn" onclick="event.stopPropagation(); speak('${currWord.example_ja}')" style="font-size:0.9rem;">🔊 讀例句</button>` : ''}
+                </div>
                 <div class="example-ja">${currWord.example_ja || ''}</div>
                 <div class="example-en">${currWord.example_en || ''}</div>
               </div>
@@ -756,12 +752,11 @@
       renderDailyTask();
     }
 
-    // 計算間隔重複下次複習時間
     function updateWordSRS(word, success) {
       if (success) {
         word.srs_stage = Math.min(SRS_INTERVALS.length - 1, (word.srs_stage || 0) + 1);
       } else {
-        word.srs_stage = 1; // 答錯重置回階段 1
+        word.srs_stage = 1;
       }
       const daysToAdd = SRS_INTERVALS[word.srs_stage];
       word.next_review_date = Date.now() + (daysToAdd * 24 * 60 * 60 * 1000);
@@ -785,7 +780,6 @@
       const container = document.getElementById("wrongListContainer");
       const selectedStars = getSelectedStars();
 
-      // 篩選有錯題紀錄的單字，並按錯誤次數由高到低排序
       const wrongWords = words.filter(w => (w.wrong_count || 0) > 0)
                               .sort((a,b) => b.wrong_count - a.wrong_count);
 
@@ -804,7 +798,7 @@
         return `
           <div class="wrong-list-item">
             <div>
-              <div style="font-size:1.1rem; font-weight:bold;">${w.word} <span style="font-size:0.85rem; color:var(--accent-color);">(${w.reading})</span></div>
+              <div style="font-size:1.1rem; font-weight:bold;">${w.word} <span style="font-size:0.85rem; color:var(--accent-color);">(${w.reading})</span> <button class="audio-btn" onclick="speak('${w.word}')">🔊</button></div>
               <div style="font-size:0.9rem; color:var(--text-sub);">${w.meaning}</div>
             </div>
             <div style="text-align:right;">
@@ -859,7 +853,17 @@
           <span class="tag" style="background:rgba(239, 68, 68, 0.2); color:var(--accent-red);">錯題強化 (${wrongPracticeIdx + 1}/${wrongPracticeList.length})</span>
           <span class="star-tag">${"⭐".repeat(getStarRating(curr.wrong_count))}</span>
         </div>
-        <div style="font-size:1.6rem; font-weight:bold;">${curr.word} <span style="font-size:1rem; color:var(--accent-color);">(${curr.reading})</span></div>
+        <div style="font-size:1.6rem; font-weight:bold;">${curr.word} <span style="font-size:1rem; color:var(--accent-color);">(${curr.reading})</span> <button class="audio-btn" onclick="speak('${curr.word}')">🔊</button></div>
+        
+        <div class="example-box" style="margin-top:10px;">
+          <div style="display:flex; align-items:center; justify-content:space-between;">
+            <span style="font-size:0.85rem; color:var(--accent-color);">例句：</span>
+            ${curr.example_ja ? `<button class="audio-btn" onclick="speak('${curr.example_ja}')" style="font-size:0.85rem;">🔊 讀例句</button>` : ''}
+          </div>
+          <div class="example-ja">${curr.example_ja || ''}</div>
+          <div class="example-en">${curr.example_en || ''}</div>
+        </div>
+
         <div class="quiz-options">
           ${options.map(opt => `<button class="option-btn" onclick="checkWrongPractice(this, '${opt}', '${curr.meaning}')">${opt}</button>`).join('')}
         </div>
@@ -873,7 +877,6 @@
 
       if (selected === correct) {
         btn.classList.add('correct');
-        // 答對減輕一次錯誤次數
         if (curr.wrong_count > 0) curr.wrong_count--;
         saveWords();
         setTimeout(() => { wrongPracticeIdx++; renderWrongPracticeCard(); }, 1200);
@@ -904,6 +907,9 @@
         <div id="cardBack" class="${isFlipped ? '' : 'hidden'}">
           <div class="word-meaning">${item.meaning}</div>
           <div class="example-box">
+            <div style="display:flex; align-items:center; justify-content:flex-end;">
+              ${item.example_ja ? `<button class="audio-btn" onclick="event.stopPropagation(); speak('${item.example_ja}')" style="font-size:0.85rem;">🔊 讀例句</button>` : ''}
+            </div>
             <div class="example-ja">${item.example_ja || ''}</div>
             <div class="example-en">${item.example_en || ''}</div>
           </div>
