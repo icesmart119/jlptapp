@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>日文單字個人 App</title>
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --text-main: #f8fafc;
+      --text-sub: #94a3b8;
+      --accent-color: #38bdf8;
+      --accent-green: #22c55e;
+      --accent-red: #ef4444;
+      --accent-yellow: #eab308;
+      --border-color: #334155;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding-bottom: 70px;
+    }
+
+    header {
+      width: 100%;
+      max-width: 600px;
+      padding: 15px 20px;
+      background-color: var(--card-bg);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    h1 {
+      font-size: 1.2rem;
+      color: var(--accent-color);
+    }
+
+    .stats-bar {
+      font-size: 0.85rem;
+      color: var(--text-sub);
+    }
+
+    main {
+      width: 100%;
+      max-width: 600px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* 導覽列 */
+    nav {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      max-width: 600px;
+      background-color: var(--card-bg);
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+      z-index: 10;
+    }
+
+    .nav-btn {
+      background: none;
+      border: none;
+      color: var(--text-sub);
+      font-size: 0.8rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      gap: 4px;
+    }
+
+    .nav-btn.active {
+      color: var(--accent-color);
+    }
+
+    .nav-btn svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+    }
+
+    /* 卡片通用樣式 */
+    .card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      position: relative;
+    }
+
+    /* 單字卡特有樣式 */
+    .flashcard {
+      min-height: 250px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.2s;
+    }
+
+    .star-btn {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--text-sub);
+      cursor: pointer;
+    }
+
+    .star-btn.starred {
+      color: var(--accent-yellow);
+    }
+
+    .level-badge {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      background: #334155;
+      color: var(--accent-color);
+      font-size: 0.75rem;
+      padding: 3px 8px;
+      border-radius: 12px;
+    }
+
+    .word-title {
+      font-size: 2.2rem;
+      font-weight: bold;
+      margin-bottom: 2px;
+    }
+
+    .word-other-forms {
+      font-size: 0.95rem;
+      color: var(--text-sub);
+      margin-bottom: 8px;
+    }
+
+    .word-furigana {
+      font-size: 1.1rem;
+      color: var(--accent-color);
+      margin-bottom: 12px;
+    }
+
+    .word-pos {
+      font-size: 0.85rem;
+      color: var(--text-sub);
+      margin-bottom: 10px;
+    }
+
+    .word-meaning {
+      font-size: 1.3rem;
+      margin-top: 10px;
+    }
+
+    .example-box {
+      margin-top: 15px;
+      padding-top: 12px;
+      border-top: 1px dashed var(--border-color);
+      text-align: left;
+    }
+
+    .example-ja {
+      font-size: 1.05rem;
+      color: #f1f5f9;
+      line-height: 1.5;
+      margin-bottom: 6px;
+    }
+
+    .example-en {
+      font-size: 0.88rem;
+      color: var(--text-sub);
+      line-height: 1.4;
+    }
+
+    /* 音訊按鈕 */
+    .audio-btn {
+      background: none;
+      border: none;
+      color: var(--accent-color);
+      cursor: pointer;
+      margin-left: 8px;
+      vertical-align: middle;
+      font-size: 1rem;
+    }
+
+    /* 選項風格 */
+    .quiz-options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 15px;
+      width: 100%;
+    }
+
+    .option-btn {
+      background-color: #0f172a;
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 12px 15px;
+      border-radius: 8px;
+      text-align: left;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+    }
+
+    .option-btn:hover {
+      border-color: var(--accent-color);
+    }
+
+    .option-btn.correct {
+      background-color: rgba(34, 197, 94, 0.2);
+      border-color: var(--accent-green);
+      color: var(--accent-green);
+    }
+
+    .option-btn.wrong {
+      background-color: rgba(239, 68, 68, 0.2);
+      border-color: var(--accent-red);
+      color: var(--accent-red);
+    }
+
+    /* 配對遊戲風格 */
+    .match-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .match-card {
+      background-color: #0f172a;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 15px 10px;
+      text-align: center;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+
+    .match-card.selected {
+      border-color: var(--accent-color);
+      background-color: rgba(56, 189, 248, 0.1);
+    }
+
+    .match-card.matched {
+      visibility: hidden;
+    }
+
+    /* 按鈕樣式 */
+    .btn {
+      background-color: var(--accent-color);
+      color: #0f172a;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+
+    .btn-secondary {
+      background-color: #334155;
+      color: var(--text-main);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 15px;
+    }
+
+    .tag {
+      display: inline-block;
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent-color);
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-right: 5px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>日文單字 Master</h1>
+    <div class="stats-bar" id="globalStats">已學: 0 / 總計: 0</div>
+  </header>
+
+  <main>
+    <!-- 1. 每日任務 -->
+    <section id="dailySec">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <h3>📅 每日學習與複習 (目標: 30字)</h3>
+        <span id="dailyProgress" style="font-size: 0.85rem; color: var(--text-sub);">進度: 0 / 30</span>
+      </div>
+      <div id="dailyContainer"></div>
+    </section>
+
+    <!-- 2. 單字卡瀏覽 -->
+    <section id="cardSec" class="hidden">
+      <div style="display:flex; gap:10px; margin-bottom:10px;">
+        <select id="jlptFilter" onchange="filterWords()" style="background:#1e293b; color:#fff; padding:8px; border-radius:6px; border:1px solid #334155; flex:1;">
+          <option value="ALL">全部 JLPT</option>
+          <option value="N5">N5</option>
+          <option value="N4">N4</option>
+          <option value="N3">N3</option>
+          <option value="N2">N2</option>
+          <option value="N1">N1</option>
+        </select>
+      </div>
+      <div class="card flashcard" id="flashcard" onclick="flipCard()"></div>
+      <div class="btn-group">
+        <button class="btn btn-secondary" onclick="prevCard()">上一張</button>
+        <button class="btn" onclick="nextCard()">下一張</button>
+      </div>
+    </section>
+
+    <!-- 3. 配對遊戲 -->
+    <section id="matchSec" class="hidden">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+        <h3>🎮 配對連連看</h3>
+        <button class="btn" onclick="loadCSVFromGitHub()">重新整理單字</button>
+      </div>
+      <div class="match-grid" id="matchGrid"></div>
+    </section>
+
+    <!-- 4. 測驗模式 -->
+    <section id="quizSec" class="hidden">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <h3>📝 4選1 綜合測驗</h3>
+        <button class="btn btn-secondary" onclick="toggleWrongOnly()" id="wrongOnlyBtn">僅測驗錯題 (0)</button>
+      </div>
+      <div class="card" id="quizCard"></div>
+    </section>
+
+    <!-- 5. 設定與 GitHub 同步狀態 -->
+    <section id="settingSec" class="hidden">
+      <h3>⚙️ 設定與同步</h3>
+      <div class="card" style="margin-top:10px;">
+        <p style="font-size:0.88rem; color:var(--text-sub); margin-bottom:15px; line-height:1.6;">
+          目前單字庫讀取自 GitHub 目錄：<br>
+          <code style="color:var(--accent-color);">/csv/words.csv</code><br><br>
+          只要你在電腦上更新該檔案並 push 到 GitHub，手機重新整理網頁就會自動載入最新單字！
+        </p>
+        <button class="btn" onclick="loadCSVFromGitHub()">🔄 從 GitHub 重新載入單字</button>
+      </div>
+    </section>
+  </main>
+
+  <nav>
+    <button class="nav-btn active" onclick="switchTab('dailySec', this)">
+      <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg>
+      每日任務
+    </button>
+    <button class="nav-btn" onclick="switchTab('cardSec', this)">
+      <svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12z"/></svg>
+      單字卡
+    </button>
+    <button class="nav-btn" onclick="switchTab('matchSec', this)">
+      <svg viewBox="0 0 24 24"><path d="M21.58 16.09l-1.09-7.66c-.25-1.72-1.71-3.01-3.45-3.01h-2.04V3.5c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5V5.42H9.96c-1.74 0-3.2 1.29-3.45 3.01l-1.09 7.66C5.07 18.5 6.94 20 9.35 20h5.3c2.41 0 4.28-1.5 3.93-3.91z"/></svg>
+      配對遊戲
+    </button>
+    <button class="nav-btn" onclick="switchTab('quizSec', this)">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 2 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+      測驗
+    </button>
+    <button class="nav-btn" onclick="switchTab('settingSec', this)">
+      <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c-.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+      設定
+    </button>
+  </nav>
+
+  <script>
+    const defaultWords = [
+      { word: "慣れる", other_forms: "慣れます", reading: "なれる", meaning: "習慣、適應", level: "N4", pos: "動詞・一段動詞", example_ja: "日本に来て三か月、やっと生活に慣れてきた。", example_en: "It has been three months since I came to Japan, and I've finally gotten used to life here.", srs_level: 0, starred: false, wrong: false },
+      { word: "散歩", other_forms: "散歩する", reading: "さんぽ", meaning: "散步", level: "N5", pos: "名詞・サ變動詞", example_ja: "毎朝公園を散歩します。", example_en: "I take a walk in the park every morning.", srs_level: 0, starred: false, wrong: false }
+    ];
+
+    let words = JSON.parse(localStorage.getItem("jp_words")) || defaultWords;
+    let filteredWords = [...words];
+    let cardIndex = 0;
+    let isFlipped = false;
+
+    function init() {
+      // 啟動時自動從 GitHub 抓取最新 CSV
+      loadCSVFromGitHub();
+    }
+
+    function saveWords() {
+      localStorage.setItem("jp_words", JSON.stringify(words));
+      updateGlobalStats();
+    }
+
+    function updateGlobalStats() {
+      const learned = words.filter(w => w.srs_level > 0).length;
+      document.getElementById("globalStats").innerText = `已學: ${learned} / 總計: ${words.length}`;
+      const wrongCount = words.filter(w => w.wrong).length;
+      document.getElementById("wrongOnlyBtn").innerText = `僅測驗錯題 (${wrongCount})`;
+    }
+
+    function switchTab(tabId, btn) {
+      document.querySelectorAll("main > section").forEach(sec => sec.classList.add("hidden"));
+      document.getElementById(tabId).classList.remove("hidden");
+      document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+
+      if (tabId === "matchSec") startMatchGame();
+      if (tabId === "quizSec") renderQuiz();
+      if (tabId === "dailySec") renderDailyTask();
+    }
+
+    function speak(text) {
+      if ('speechSynthesis' in window) {
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = 'ja-JP';
+        window.speechSynthesis.speak(utter);
+      }
+    }
+
+    /* 從 GitHub 自動讀取 /csv/words.csv */
+    function loadCSVFromGitHub() {
+      fetch('./csv/words.csv')
+        .then(response => {
+          if (!response.ok) throw new Error("無法讀取 CSV 檔案");
+          return response.text();
+        })
+        .then(text => {
+          parseAndLoadCSVText(text);
+        })
+        .catch(error => {
+          console.warn("自動讀取 GitHub 失敗，使用本地暫存或預設資料:", error);
+          updateGlobalStats();
+          renderDailyTask();
+          renderFlashCard();
+        });
+    }
+
+    function parseCSVLine(text) {
+      let result = [];
+      let field = '';
+      let inQuotes = false;
+      for (let i = 0; i < text.length; i++) {
+        let c = text[i];
+        if (c === '"') {
+          inQuotes = !inQuotes;
+        } else if (c === ',' && !inQuotes) {
+          result.push(field.trim());
+          field = '';
+        } else {
+          field += c;
+        }
+      }
+      result.push(field.trim());
+      return result.map(f => f.replace(/^\ufeff/, '').replace(/^"|"$/g, '').trim());
+    }
+
+    function parseAndLoadCSVText(text) {
+      const lines = text.split(/\r\n|\n/).map(l => l.trim()).filter(l => l.length > 0);
+      if (lines.length < 1) return;
+
+      const headers = parseCSVLine(lines[0]).map(h => h.toLowerCase());
+      const findCol = (keywords) => {
+        for (let kw of keywords) {
+          let idx = headers.findIndex(h => h.includes(kw));
+          if (idx !== -1) return idx;
+        }
+        return -1;
+      };
+
+      let wordIdx = findCol(['word', '單字']);
+      let readingIdx = findCol(['reading', '假名', '發音']);
+      let meaningIdx = findCol(['meaning', '意思', '中文', 'meanings']);
+      let levelIdx = findCol(['level', 'n級', 'jlpt']);
+      let posIdx = findCol(['pos', '詞性']);
+      let otherIdx = findCol(['other_forms', 'other', '其他']);
+      let exJaIdx = findCol(['example_ja', '例句', '日文例句']);
+      let exEnIdx = findCol(['example_en', '英文', '翻譯']);
+
+      let startIndex = 1;
+      if (wordIdx === -1 && meaningIdx === -1) {
+        startIndex = 0;
+        wordIdx = 0; readingIdx = 1; meaningIdx = 2; levelIdx = 3; posIdx = 4; otherIdx = 5; exJaIdx = 6; exEnIdx = 7;
+      }
+
+      // 保留原有的學習進度 (srs_level, starred, wrong)
+      const oldWordsMap = new Map(words.map(w => [w.word, w]));
+
+      let newWords = [];
+      for (let i = startIndex; i < lines.length; i++) {
+        const cols = parseCSVLine(lines[i]);
+        const wVal = wordIdx !== -1 ? cols[wordIdx] : cols[0];
+        const mVal = meaningIdx !== -1 ? cols[meaningIdx] : cols[2];
+
+        if (wVal) {
+          let existing = oldWordsMap.get(wVal) || {};
+          newWords.push({
+            word: wVal || '',
+            reading: readingIdx !== -1 && cols[readingIdx] !== undefined ? cols[readingIdx] : (cols[1] || ''),
+            meaning: mVal || '',
+            level: levelIdx !== -1 && cols[levelIdx] !== undefined ? cols[levelIdx] : (cols[3] || 'N5'),
+            pos: posIdx !== -1 && cols[posIdx] !== undefined ? cols[posIdx] : (cols[4] || ''),
+            other_forms: otherIdx !== -1 && cols[otherIdx] !== undefined ? cols[otherIdx] : (cols[5] || ''),
+            example_ja: exJaIdx !== -1 && cols[exJaIdx] !== undefined ? cols[exJaIdx] : (cols[6] || ''),
+            example_en: exEnIdx !== -1 && cols[exEnIdx] !== undefined ? cols[exEnIdx] : (cols[7] || ''),
+            srs_level: existing.srs_level || 0,
+            starred: existing.starred || false,
+            wrong: existing.wrong || false
+          });
+        }
+      }
+
+      if (newWords.length > 0) {
+        words = newWords;
+        saveWords();
+        dailyList = [];
+        dailyIndex = 0;
+        renderDailyTask();
+        renderFlashCard();
+      }
+    }
+
+    /* 1. 每日任務 */
+    let dailyList = [];
+    let dailyIndex = 0;
+
+    function renderDailyTask() {
+      const container = document.getElementById("dailyContainer");
+      if (dailyList.length === 0) {
+        const reviewWords = words.filter(w => w.srs_level > 0 && w.srs_level < 5).sort((a,b) => a.srs_level - b.srs_level);
+        const newWords = words.filter(w => w.srs_level === 0);
+        dailyList = [...reviewWords, ...newWords].slice(0, 30);
+      }
+
+      document.getElementById("dailyProgress").innerText = `進度: ${Math.min(dailyIndex, dailyList.length)} / ${dailyList.length}`;
+
+      if (dailyIndex >= dailyList.length || dailyList.length === 0) {
+        container.innerHTML = `
+          <div class="card" style="text-align:center; padding: 40px 20px;">
+            <h2>🎉 今天目標已完成！</h2>
+            <p style="color:var(--text-sub); margin-top:10px;">你已經完成了今天的 30 個單字學習。</p>
+            <button class="btn" style="margin-top:20px;" onclick="dailyIndex=0; dailyList=[]; renderDailyTask();">再學一輪</button>
+          </div>
+        `;
+        return;
+      }
+
+      const currWord = dailyList[dailyIndex];
+
+      if (currWord.srs_level === 0) {
+        const wrongMeanings = words.filter(w => w.word !== currWord.word).map(w => w.meaning).filter(Boolean).sort(() => 0.5 - Math.random()).slice(0, 3);
+        const options = [currWord.meaning, ...wrongMeanings].sort(() => 0.5 - Math.random());
+
+        container.innerHTML = `
+          <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px;">
+              <span class="tag" style="background:rgba(34, 197, 94, 0.2); color:var(--accent-green);">✨ 新單字</span>
+              <span style="font-size:0.85rem; color:var(--text-sub);">${currWord.level || 'N5'} 常見單字</span>
+            </div>
+            <div>
+              <div class="word-title">${currWord.word} <span class="word-furigana">（${currWord.reading || ''}）</span> <button class="audio-btn" onclick="speak('${currWord.word}')">🔊</button></div>
+              ${currWord.other_forms ? `<div class="word-other-forms">(${currWord.other_forms})</div>` : ''}
+              <div class="word-pos">${currWord.pos || ''}</div>
+            </div>
+            <div class="example-box">
+              <div style="font-weight:bold; font-size:0.85rem; color:var(--accent-color); margin-bottom:4px;">情境例句：</div>
+              <div class="example-ja">${currWord.example_ja || '無例句'}</div>
+              ${currWord.example_en ? `<div class="example-en">${currWord.example_en}</div>` : ''}
+            </div>
+            <div style="font-weight:bold; margin-top:18px; margin-bottom:10px; font-size:0.95rem;">這句話最接近哪個意思？</div>
+            <div class="quiz-options">
+              ${options.map(opt => `<button class="option-btn" onclick="checkDailyAnswer(this, '${opt}', '${currWord.meaning}')">${opt}</button>`).join('')}
+            </div>
+          </div>
+        `;
+      } else {
+        container.innerHTML = `
+          <div class="card flashcard" onclick="this.querySelector('.word-meaning').classList.toggle('hidden')">
+            <span class="tag" style="position:absolute; top:15px; left:15px;">🔄 複習 (Level ${currWord.srs_level})</span>
+            <div class="word-title">${currWord.word}</div>
+            ${currWord.other_forms ? `<div class="word-other-forms">(${currWord.other_forms})</div>` : ''}
+            <div class="word-furigana">${currWord.reading || ''} <button class="audio-btn" onclick="event.stopPropagation(); speak('${currWord.word}')">🔊</button></div>
+            <div class="word-meaning hidden" style="color:var(--accent-green); font-weight:bold; margin-top:15px;">
+              ${currWord.meaning}
+              <div class="example-box">
+                <div class="example-ja">${currWord.example_ja || ''}</div>
+                <div class="example-en">${currWord.example_en || ''}</div>
+              </div>
+            </div>
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-secondary" onclick="markDaily(false)">還不熟</button>
+            <button class="btn" onclick="markDaily(true)">記住了</button>
+          </div>
+        `;
+      }
+    }
+
+    function checkDailyAnswer(btn, selected, correct) {
+      const options = btn.parentElement.querySelectorAll('.option-btn');
+      options.forEach(b => b.disabled = true);
+      const currWord = dailyList[dailyIndex];
+
+      if (selected === correct) {
+        btn.classList.add('correct');
+        currWord.srs_level = 1;
+        saveWords();
+        setTimeout(() => { dailyIndex++; renderDailyTask(); }, 1200);
+      } else {
+        btn.classList.add('wrong');
+        options.forEach(b => { if (b.innerText === correct) b.classList.add('correct'); });
+        currWord.wrong = true;
+        saveWords();
+        setTimeout(() => { dailyIndex++; renderDailyTask(); }, 2000);
+      }
+    }
+
+    function markDaily(success) {
+      const currWord = dailyList[dailyIndex];
+      if (success) {
+        currWord.srs_level = Math.min(5, (currWord.srs_level || 0) + 1);
+      } else {
+        currWord.srs_level = Math.max(1, (currWord.srs_level || 0) - 1);
+        currWord.wrong = true;
+      }
+      saveWords();
+      dailyIndex++;
+      renderDailyTask();
+    }
+
+    /* 2. 單字卡瀏覽 */
+    function renderFlashCard() {
+      filteredWords = [...words];
+      if (filteredWords.length === 0) {
+        document.getElementById("flashcard").innerHTML = `<div>載入中或沒有單字...</div>`;
+        return;
+      }
+      const item = filteredWords[cardIndex];
+      const isStarred = item.starred ? 'starred' : '';
+
+      document.getElementById("flashcard").innerHTML = `
+        <span class="level-badge">${item.level || 'N5'} ${item.pos ? '| ' + item.pos : ''}</span>
+        <button class="star-btn ${isStarred}" onclick="event.stopPropagation(); toggleStar('${item.word}')">★</button>
+        <div class="word-title">${item.word}</div>
+        ${item.other_forms ? `<div class="word-other-forms">(${item.other_forms})</div>` : ''}
+        <div class="word-furigana">${item.reading || ''} <button class="audio-btn" onclick="event.stopPropagation(); speak('${item.word}')">🔊</button></div>
+        <div id="cardBack" class="${isFlipped ? '' : 'hidden'}">
+          <div class="word-meaning">${item.meaning}</div>
+          <div class="example-box">
+            <div class="example-ja">${item.example_ja || ''}</div>
+            <div class="example-en">${item.example_en || ''}</div>
+          </div>
+        </div>
+        <div style="font-size:0.75rem; color:var(--text-sub); margin-top:15px;">(點擊卡片翻面)</div>
+      `;
+    }
+
+    function flipCard() { isFlipped = !isFlipped; renderFlashCard(); }
+    function nextCard() { isFlipped = false; cardIndex = (cardIndex + 1) % filteredWords.length; renderFlashCard(); }
+    function prevCard() { isFlipped = false; cardIndex = (cardIndex - 1 + filteredWords.length) % filteredWords.length; renderFlashCard(); }
+
+    function toggleStar(wordText) {
+      const target = words.find(w => w.word === wordText);
+      if (target) {
+        target.starred = !target.starred;
+        saveWords();
+        renderFlashCard();
+      }
+    }
+
+    function filterWords() {
+      const jlpt = document.getElementById("jlptFilter").value;
+      filteredWords = words.filter(w => (jlpt === "ALL" || w.level === jlpt));
+      cardIndex = 0;
+      isFlipped = false;
+      renderFlashCard();
+    }
+
+    /* 3. 配對遊戲 */
+    let selectedMatchCard = null;
+    function startMatchGame() {
+      const grid = document.getElementById("matchGrid");
+      grid.innerHTML = "";
+      if (words.length === 0) return;
+      const sample = [...words].sort(() => 0.5 - Math.random()).slice(0, 4);
+      let items = [];
+      sample.forEach(w => {
+        items.push({ key: w.word, text: w.word, type: 'jp' });
+        items.push({ key: w.word, text: w.meaning, type: 'zh' });
+      });
+      items.sort(() => 0.5 - Math.random());
+      items.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'match-card';
+        div.innerText = item.text;
+        div.dataset.key = item.key;
+        div.onclick = () => handleMatchClick(div);
+        grid.appendChild(div);
+      });
+    }
+
+    function handleMatchClick(card) {
+      if (card.classList.contains('matched')) return;
+      if (!selectedMatchCard) {
+        selectedMatchCard = card;
+        card.classList.add('selected');
+      } else if (selectedMatchCard === card) {
+        selectedMatchCard.classList.remove('selected');
+        selectedMatchCard = null;
+      } else {
+        if (selectedMatchCard.dataset.key === card.dataset.key) {
+          selectedMatchCard.classList.add('matched');
+          card.classList.add('matched');
+          selectedMatchCard = null;
+        } else {
+          card.classList.add('selected');
+          setTimeout(() => {
+            selectedMatchCard.classList.remove('selected');
+            card.classList.remove('selected');
+            selectedMatchCard = null;
+          }, 500);
+        }
+      }
+    }
+
+    /* 4. 測驗模式 */
+    let isWrongOnly = false;
+    let currentQuizWord = null;
+
+    function toggleWrongOnly() {
+      isWrongOnly = !isWrongOnly;
+      document.getElementById("wrongOnlyBtn").style.backgroundColor = isWrongOnly ? "var(--accent-red)" : "#334155";
+      renderQuiz();
+    }
+
+    function renderQuiz() {
+      const pool = isWrongOnly ? words.filter(w => w.wrong) : words;
+      const card = document.getElementById("quizCard");
+      if (pool.length === 0) {
+        card.innerHTML = `<div style="text-align:center;">目前沒有${isWrongOnly ? '錯題' : '單字'}可供測驗！</div>`;
+        return;
+      }
+      currentQuizWord = pool[Math.floor(Math.random() * pool.length)];
+      const wrongOptions = words.filter(w => w.word !== currentQuizWord.word).map(w => w.meaning).filter(Boolean).sort(() => 0.5 - Math.random()).slice(0, 3);
+      const options = [currentQuizWord.meaning, ...wrongOptions].sort(() => 0.5 - Math.random());
+
+      card.innerHTML = `
+        <div style="font-size:1.8rem; font-weight:bold; margin-bottom:2px;">${currentQuizWord.word}</div>
+        ${currentQuizWord.other_forms ? `<div style="font-size:0.85rem; color:var(--text-sub);">(${currentQuizWord.other_forms})</div>` : ''}
+        <div style="color:var(--accent-color); margin-top:5px; margin-bottom:15px;">${currentQuizWord.reading || ''}</div>
+        <div class="quiz-options">
+          ${options.map(opt => `<button class="option-btn" onclick="checkQuizAnswer(this, '${opt}', '${currentQuizWord.meaning}')">${opt}</button>`).join('')}
+        </div>
+      `;
+    }
+
+    function checkQuizAnswer(btn, selected, correct) {
+      const options = btn.parentElement.querySelectorAll('.option-btn');
+      options.forEach(b => b.disabled = true);
+      if (selected === correct) {
+        btn.classList.add('correct');
+        currentQuizWord.wrong = false;
+      } else {
+        btn.classList.add('wrong');
+        currentQuizWord.wrong = true;
+        options.forEach(b => { if (b.innerText === correct) b.classList.add('correct'); });
+      }
+      saveWords();
+      setTimeout(renderQuiz, 1500);
+    }
+
+    init();
+  </script>
+</body>
+</html>
