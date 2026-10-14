@@ -175,7 +175,7 @@ a8b9eb425d,軽い,かるい,karui,light,N5,adj-i,1252560,,軽く食べましょ�
 bcf12e002d,川,かわ,kawa,river,N5,n,1390020,,その川はあまりきれいではなかった。,The river was not so clean.
 bad3423a93,かわいい,かわいい,kawaii,cute,N5,adj-i,1577200,可愛い,ルーシーはかわいい女の子だ。,Lucy is a pretty little girl.
 fdc787af58,漢字,かんじ,kanji,Chinese character,N5,n,1213170,,この漢字はどういう意味ですか。,What does this kanji mean?
-22836046e2,木,き,ki,tree; wood,N5,n,1534520,,その木には実がたわわになっていた。,The tree was heavy with fruit.
+2.2836046E+09,木,き,ki,tree; wood,N5,n,1534520,,その木には実がたわわになっていた。,The tree was heavy with fruit.
 5d679a1af2,黄色,きいろ,kiiro,yellow,N5,n; adj-no; adj-na,1576760,,木の葉は秋には黄色になる。,The leaves of the trees turn yellow in fall.
 0b36c8d6c6,黄色い,きいろい,kiiroi,yellow,N5,adj-i,1182030,,その黄色いのをいただきましょう。,I'll take the yellow one.
 6030b50276,消える,きえる,kieru,to disappear,N5,v1; vi,1350040,,火が消えないようにしてください。,Please keep the fire from going out.
@@ -324,7 +324,7 @@ d671097071,住む,すむ,sumu,to live in,N5,v5m; vi,1334040,,どうしてアメ�
 c4cdc162d7,する,する,suru,to do,N5,vs-i,1157170,為る,ログアウトするんじゃなかったよ。,I shouldn't have logged off.
 c9a15e8777,座る,すわる,suwaru,to sit,N5,v5r; vi,1291800,,父と母は木の下に座っていました。,My father and mother were sitting under a tree.
 898b067287,背,せ,se,height; stature,N5,n,2147990,,トムはジャックと背が同じくらいだ。,Tom is as tall as Jack.
-af7459ef1e,生徒,せいと,seito,pupil,N5,n,1379380,,この学校はたくさんの生徒がいます。,This school has many students.
+af7459ef1e,生徒,せいと,seito,student,N5,n,1379380,,この学校はたくさんの生徒がいます。,This school has many students.
 4b0b49a42d,セーター,セーター,seetaa,sweater; jumper,N5,n,1074270,,このセーターは気に入らない。,I don't like this sweater.
 b48d0c99d4,せっけん,せっけん,sekken,economy,N5,n; vs; vt; vi,1386220,,せっけんだらけの手で私にさわらないで。,Don't touch me with your soapy hands.
 9d432ac114,背広,せびろ,sebiro,business suit,N5,n,1472740,,私は新しい背広を買った。,I bought a new suit of clothes.
@@ -404,7 +404,7 @@ dc0ae29019,テープレコーダー,テープレコーダー,teepurekoodaa,tape 
 151fd72164,出口,でぐち,deguchi,exit,N5,n,1338850,,B2出口から地上に出てください。,Go up to ground level at exit B2.
 90e9410bff,テスト,テスト,tesuto,test,N5,n; vs; vt,1079760,,そのテストはむずかしかった。,I found the test difficult.
 d33540fe8e,では,では,dewa,with that...,N5,exp,1008450,,では今晩またね、さようなら。,"See you tonight, then. Cheers!"
-0144505953,デパート,デパート,depaato,department store,N5,n,1083590,,あのデパートで新しいコートを買いたい。,I would like to buy a new coat at that department store.
+144505953,デパート,デパート,depaato,department store,N5,n,1083590,,あのデパートで新しいコートを買いたい。,I would like to buy a new coat at that department store.
 3f71089c32,でも,でも,demo,but,N5,conj,1008460,,どんな人でもいないよりはましだ。,Anybody would be better than nobody.
 5ef4f7dde9,出る,でる,deru,to appear; to leave,N5,v1; vi,1338240,,電話には出なかったからメールしておきました。,"He didn't answer the phone, so I left him an email."
 c7e14d8454,テレビ,テレビ,terebi,television,N5,n,1080510,,あなたはどこでテレビを見ますか。,Where do you watch television?
@@ -461,7 +461,7 @@ a95b0a87ad,習う,ならう,narau,to learn,N5,v5u; vt,1333070,,車の運転を�
 1635de1a94,並べる,ならべる,naraberu,to line up; to set up,N5,v1; vt,1508390,,メイドはテーブルにナイフとフォークを並べた。,The maid arranged the knives and forks on the table.
 e05de4981d,なる,なる,naru,to become,N5,v5r; vi,1375610,成る,ちまたではインターネットなるものがはやっています。,People are talking about this Internet phenomenon.
 558866ef86,何,なん,nan,what,N5,pn,1577100,,学校の前に何本か木が見えます。,You see some trees in front of the school.
-34108268e1,二,に,ni,two,N5,num,1461140,,このホールには人が二千人入れる。,Two thousand people fit into this hall.
+3.4108268E+08,二,に,ni,two,N5,num,1461140,,このホールには人が二千人入れる。,Two thousand people fit into this hall.
 c17f97fafc,賑やか,にぎやか,nigiyaka,bustling; busy,N5,adj-na,1463480,,この通りは賑やかだ。,This street is lively.
 efac1fc502,肉,にく,niku,meat,N5,n,1463520,,肉にはウジがわいていた。,The meat was crawling with maggots.
 436f1c3c65,西,にし,nishi,west,N5,n,1380840,,列車は西へ走っていた。,The train was hurrying west.
@@ -539,7 +539,7 @@ d156402900,封筒,ふうとう,fuutou,envelope,N5,n,1499690,,だれがこの封�
 55c1439239,プール,プール,puuru,swimming pool,N5,n,1115150,,サウナとプールがあります。,There's a sauna and a pool.
 71e2aefb9d,フォーク,フォーク,fooku,fork,N5,n,1110110,,,
 15f4136421,吹く,ふく,fuku,to blow,N5,v5k; vi,1370760,,あの日は強い風が吹いていました。,There was a strong wind that day.
-68571540e1,服,ふく,fuku,clothes,N5,n; n-suf,1500940,,この服はわたしにはもったいない。,This suit is too good for me.
+6.857154E+08,服,ふく,fuku,clothes,N5,n; n-suf,1500940,,この服はわたしにはもったいない。,This suit is too good for me.
 0c1dbd4838,二つ,ふたつ,futatsu,two,N5,num,1461160,,二つのうちでどちらが高いですか。,Which is the more expensive of the two?
 c518fb9116,豚肉,ぶたにく,butaniku,pork,N5,n,1457440,,この豚肉は１キロいくらですか。,How much is this pork a kilo?
 94c2076821,二人,ふたり,futari,two people,N5,n,1582670,,二人は何をしているところですか。,What are you two doing?
