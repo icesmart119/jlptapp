@@ -84,7 +84,7 @@
       background: none;
       border: none;
       color: var(--text-sub);
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -97,8 +97,8 @@
     }
 
     .nav-btn svg {
-      width: 20px;
-      height: 20px;
+      width: 18px;
+      height: 18px;
       fill: currentColor;
     }
 
@@ -182,6 +182,7 @@
       padding-top: 12px;
       border-top: 1px dashed var(--border-color);
       text-align: left;
+      width: 100%;
     }
 
     .example-ja {
@@ -197,14 +198,23 @@
       line-height: 1.4;
     }
 
-    .audio-btn {
+    .audio-btn, .action-link-btn {
       background: none;
       border: none;
       color: var(--accent-color);
       cursor: pointer;
-      margin-left: 8px;
-      vertical-align: middle;
-      font-size: 1rem;
+      font-size: 0.9rem;
+      padding: 2px 6px;
+    }
+
+    .report-btn {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--accent-red);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      cursor: pointer;
     }
 
     .quiz-options {
@@ -245,18 +255,18 @@
 
     .match-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
     }
 
     .match-card {
       background-color: #0f172a;
       border: 1px solid var(--border-color);
       border-radius: 8px;
-      padding: 15px 10px;
+      padding: 12px 8px;
       text-align: center;
       cursor: pointer;
-      font-size: 0.95rem;
+      font-size: 0.88rem;
     }
 
     .match-card.selected {
@@ -321,7 +331,7 @@
       cursor: pointer;
     }
 
-    .wrong-list-item {
+    .list-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -330,6 +340,12 @@
       border: 1px solid var(--border-color);
       border-radius: 8px;
       margin-bottom: 8px;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    .list-item:hover {
+      border-color: var(--accent-color);
     }
 
     .star-tag {
@@ -370,16 +386,17 @@
       <div id="dailyContainer"></div>
     </section>
 
-    <!-- 2. 單字卡瀏覽 -->
+    <!-- 2. 單字卡瀏覽 (僅顯示已學過) -->
     <section id="cardSec" class="hidden">
-      <div style="display:flex; gap:10px; margin-bottom:10px;">
-        <select id="jlptFilter" onchange="filterWords()" style="background:#1e293b; color:#fff; padding:8px; border-radius:6px; border:1px solid #334155; flex:1;">
-          <option value="ALL">全部 JLPT</option>
+      <div style="display:flex; gap:10px; margin-bottom:10px; align-items:center;">
+        <select id="jlptFilter" onchange="filterLearnedWords()" style="background:#1e293b; color:#fff; padding:8px; border-radius:6px; border:1px solid #334155; flex:1;">
+          <option value="ALL">全部已學 JLPT</option>
           <option value="N5">N5</option>
           <option value="N4">N4</option>
           <option value="N3">N3</option>
           <option value="N2">N2</option>
         </select>
+        <span id="learnedCardCount" style="font-size:0.8rem; color:var(--text-sub);">已學: 0</span>
       </div>
       <div class="card flashcard" id="flashcard" onclick="flipCard()"></div>
       <div class="btn-group">
@@ -388,39 +405,43 @@
       </div>
     </section>
 
-    <!-- 3. 錯誤列表與星級複習 -->
+    <!-- 3. 錯誤列表 -->
     <section id="wrongSec" class="hidden">
-      <h3>❌ 錯題本與星級複習</h3>
+      <h3>❌ 錯題本與錯誤回報</h3>
       <p style="font-size:0.85rem; color:var(--text-sub); margin-top:4px; margin-bottom:12px;">
-        根據答錯次數分級：⭐(1-2次) | ⭐⭐(3-4次) | ⭐⭐⭐(5次以上)
+        點擊清單項目可直接開啟學習小卡複習。⭐(1-2次) | ⭐⭐(3-4次) | ⭐⭐⭐(5次以上)
       </p>
 
       <div class="checkbox-group">
-        <span style="font-size:0.8rem; color:var(--text-sub); width:100%;">篩選複習星級：</span>
-        <label class="checkbox-label"><input type="checkbox" value="1" class="star-check" checked onchange="renderWrongList()"> ⭐ 輕微錯誤</label>
-        <label class="checkbox-label"><input type="checkbox" value="2" class="star-check" checked onchange="renderWrongList()"> ⭐⭐ 中度錯誤</label>
-        <label class="checkbox-label"><input type="checkbox" value="3" class="star-check" checked onchange="renderWrongList()"> ⭐⭐⭐ 重度錯題</label>
+        <span style="font-size:0.8rem; color:var(--text-sub); width:100%;">篩選星級：</span>
+        <label class="checkbox-label"><input type="checkbox" value="1" class="star-check" checked onchange="renderWrongList()"> ⭐ 輕微</label>
+        <label class="checkbox-label"><input type="checkbox" value="2" class="star-check" checked onchange="renderWrongList()"> ⭐⭐ 中度</label>
+        <label class="checkbox-label"><input type="checkbox" value="3" class="star-check" checked onchange="renderWrongList()"> ⭐⭐⭐ 重度</label>
       </div>
 
-      <div style="margin-bottom:15px; display:flex; justify-content:space-between; align-items:center;">
-        <span id="wrongCountText" style="font-size:0.9rem; color:var(--text-sub);">符合條件錯題：0 字</span>
-        <button class="btn" onclick="startWrongPractice()">開始練習篩選錯題</button>
-      </div>
-
-      <div id="wrongPracticeArea" class="card hidden" style="margin-bottom:15px;"></div>
+      <div id="wrongCardModal" class="card hidden" style="margin-bottom:15px; border-color:var(--accent-red);"></div>
       <div id="wrongListContainer"></div>
     </section>
 
-    <!-- 4. 配對遊戲 -->
+    <!-- 4. 略過清單 -->
+    <section id="skipSec" class="hidden">
+      <h3>⏩ 略過清單管理</h3>
+      <p style="font-size:0.85rem; color:var(--text-sub); margin-top:4px; margin-bottom:12px;">
+        這裡存放所有被你略過的單字，隨時可以恢復重新加入學習。
+      </p>
+      <div id="skipListContainer"></div>
+    </section>
+
+    <!-- 5. 配對遊戲 (10個單字) -->
     <section id="matchSec" class="hidden">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-        <h3>🎮 配對連連看</h3>
+        <h3>🎮 配對連連看 (10題挑戰)</h3>
         <button class="btn" onclick="startMatchGame()">重新開始</button>
       </div>
       <div class="match-grid" id="matchGrid"></div>
     </section>
 
-    <!-- 5. 設定 -->
+    <!-- 6. 設定 -->
     <section id="settingSec" class="hidden">
       <h3>⚙️ 設定與同步</h3>
       <div class="card" style="margin-top:10px;">
@@ -443,15 +464,19 @@
     </button>
     <button class="nav-btn" onclick="switchTab('cardSec', this)">
       <svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12z"/></svg>
-      單字卡
+      已學單字
     </button>
     <button class="nav-btn" onclick="switchTab('wrongSec', this)">
       <svg viewBox="0 0 24 24"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></svg>
-      錯誤列表
+      錯題與回報
+    </button>
+    <button class="nav-btn" onclick="switchTab('skipSec', this)">
+      <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+      略過清單
     </button>
     <button class="nav-btn" onclick="switchTab('matchSec', this)">
       <svg viewBox="0 0 24 24"><path d="M21.58 16.09l-1.09-7.66c-.25-1.72-1.71-3.01-3.45-3.01h-2.04V3.5c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5V5.42H9.96c-1.74 0-3.2 1.29-3.45 3.01l-1.09 7.66C5.07 18.5 6.94 20 9.35 20h5.3c2.41 0 4.28-1.5 3.93-3.91z"/></svg>
-      配對遊戲
+      連連看
     </button>
     <button class="nav-btn" onclick="switchTab('settingSec', this)">
       <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c-.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
@@ -463,7 +488,7 @@
     const SRS_INTERVALS = [0, 1, 2, 4, 7, 15];
 
     let words = JSON.parse(localStorage.getItem("jp_words")) || [];
-    let filteredWords = [...words];
+    let learnedWordsFiltered = [];
     let cardIndex = 0;
     let isFlipped = false;
 
@@ -488,16 +513,37 @@
       btn.classList.add("active");
 
       if (tabId === "matchSec") startMatchGame();
-      if (tabId === "wrongSec") renderWrongList();
+      if (tabId === "wrongSec") { document.getElementById("wrongCardModal").classList.add("hidden"); renderWrongList(); }
+      if (tabId === "skipSec") renderSkipList();
+      if (tabId === "cardSec") filterLearnedWords();
       if (tabId === "dailySec") renderDailyTask();
     }
 
     function speak(text) {
       if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel(); // 防止語音堆疊
+        window.speechSynthesis.cancel();
         const utter = new SpeechSynthesisUtterance(text);
         utter.lang = 'ja-JP';
         window.speechSynthesis.speak(utter);
+      }
+    }
+
+    function reportWordError(wordText) {
+      const target = words.find(w => w.word === wordText);
+      if (target) {
+        target.wrong_count = (target.wrong_count || 0) + 1;
+        saveWords();
+        alert(`已成功回報與加入錯題本：${target.word} (累積錯誤 ${target.wrong_count} 次)`);
+      }
+    }
+
+    function skipWord(wordText) {
+      const target = words.find(w => w.word === wordText);
+      if (target) {
+        target.skipped = true;
+        saveWords();
+        dailyIndex++;
+        renderDailyTask();
       }
     }
 
@@ -529,7 +575,7 @@
               if (allParsedWords.length > 0) mergeWords(allParsedWords);
               updateGlobalStats();
               resetDailyTask();
-              filterWords();
+              filterLearnedWords();
             }
           });
       });
@@ -606,13 +652,14 @@
           srs_stage: old.srs_stage || 0,
           next_review_date: old.next_review_date || 0,
           wrong_count: old.wrong_count || 0,
-          starred: old.starred || false
+          starred: old.starred || false,
+          skipped: old.skipped || false
         };
       });
       saveWords();
     }
 
-    /* ---------------- 1. 每日任務 (多選 JLPT + 間隔重複演算法) ---------------- */
+    /* ---------------- 1. 每日任務 (過濾已跳過單字) ---------------- */
     let dailyList = [];
     let dailyIndex = 0;
 
@@ -641,11 +688,12 @@
 
       const selectedLevels = getSelectedJLPT();
       if (selectedLevels.length === 0) {
-        container.innerHTML = `<div class="card" style="text-align:center; color:var(--accent-red);">請至少勾選一個 JLPT 等級進行練習！</div>`;
+        container.innerHTML = `<div class="card" style="text-align:center; color:var(--accent-red);">請至少勾選一個 JLPT 等級！</div>`;
         return;
       }
 
-      const pool = words.filter(w => selectedLevels.includes(w.level));
+      // 過濾掉被 skipped 的單字
+      const pool = words.filter(w => selectedLevels.includes(w.level) && !w.skipped);
 
       if (dailyList.length === 0) {
         const now = Date.now();
@@ -660,7 +708,7 @@
         container.innerHTML = `
           <div class="card" style="text-align:center; padding: 40px 20px;">
             <h2>🎉 今天目標已完成！</h2>
-            <p style="color:var(--text-sub); margin-top:10px;">已完成今日所選等級 (${selectedLevels.join(', ')}) 的學習與複習。</p>
+            <p style="color:var(--text-sub); margin-top:10px;">已完成今日所選等級的學習與複習。</p>
             <button class="btn" style="margin-top:20px;" onclick="resetDailyTask();">再學一輪</button>
           </div>
         `;
@@ -676,8 +724,14 @@
         container.innerHTML = `
           <div class="card">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px;">
-              <span class="tag" style="background:rgba(34, 197, 94, 0.2); color:var(--accent-green);">✨ 新單字</span>
-              <span style="font-size:0.85rem; color:var(--text-sub);">${currWord.level} 單字</span>
+              <div>
+                <span class="tag" style="background:rgba(34, 197, 94, 0.2); color:var(--accent-green);">✨ 新單字</span>
+                <span style="font-size:0.85rem; color:var(--text-sub);">${currWord.level}</span>
+              </div>
+              <div style="display:flex; gap:6px;">
+                <button class="report-btn" onclick="reportWordError('${currWord.word}')">⚠️ 回報錯誤</button>
+                <button class="action-link-btn" onclick="skipWord('${currWord.word}')" style="color:var(--accent-yellow);">⏩ 略過</button>
+              </div>
             </div>
             <div>
               <div class="word-title">${currWord.word} <span class="word-furigana">（${currWord.reading || ''}）</span> <button class="audio-btn" onclick="speak('${currWord.word}')">🔊</button></div>
@@ -687,7 +741,7 @@
             <div class="example-box">
               <div style="font-weight:bold; font-size:0.85rem; color:var(--accent-color); margin-bottom:4px; display:flex; align-items:center; justify-content:space-between;">
                 <span>情境例句：</span>
-                ${currWord.example_ja ? `<button class="audio-btn" onclick="speak('${currWord.example_ja}')" style="font-size:0.9rem;">🔊 讀例句</button>` : ''}
+                ${currWord.example_ja ? `<button class="audio-btn" onclick="speak('${currWord.example_ja}')" style="font-size:0.85rem;">🔊 讀例句</button>` : ''}
               </div>
               <div class="example-ja">${currWord.example_ja || '無例句'}</div>
               ${currWord.example_en ? `<div class="example-en">${currWord.example_en}</div>` : ''}
@@ -701,15 +755,19 @@
       } else {
         container.innerHTML = `
           <div class="card flashcard" onclick="this.querySelector('.word-meaning').classList.toggle('hidden')">
-            <span class="tag" style="position:absolute; top:15px; left:15px;">🔄 階段 ${currWord.srs_stage} 複習 (${currWord.level})</span>
-            <div class="word-title">${currWord.word}</div>
+            <span class="tag" style="position:absolute; top:15px; left:15px;">🔄 階段 ${currWord.srs_stage} 複習</span>
+            <div style="position:absolute; top:15px; right:15px; display:flex; gap:6px;">
+              <button class="report-btn" onclick="event.stopPropagation(); reportWordError('${currWord.word}')">⚠️ 回報錯誤</button>
+              <button class="action-link-btn" onclick="event.stopPropagation(); skipWord('${currWord.word}')" style="color:var(--accent-yellow);">⏩ 略過</button>
+            </div>
+            <div class="word-title" style="margin-top:20px;">${currWord.word}</div>
             ${currWord.other_forms ? `<div class="word-other-forms">(${currWord.other_forms})</div>` : ''}
             <div class="word-furigana">${currWord.reading || ''} <button class="audio-btn" onclick="event.stopPropagation(); speak('${currWord.word}')">🔊</button></div>
             <div class="word-meaning hidden" style="color:var(--accent-green); font-weight:bold; margin-top:15px;">
               ${currWord.meaning}
               <div class="example-box">
                 <div style="display:flex; align-items:center; justify-content:flex-end;">
-                  ${currWord.example_ja ? `<button class="audio-btn" onclick="event.stopPropagation(); speak('${currWord.example_ja}')" style="font-size:0.9rem;">🔊 讀例句</button>` : ''}
+                  ${currWord.example_ja ? `<button class="audio-btn" onclick="event.stopPropagation(); speak('${currWord.example_ja}')" style="font-size:0.85rem;">🔊 讀例句</button>` : ''}
                 </div>
                 <div class="example-ja">${currWord.example_ja || ''}</div>
                 <div class="example-en">${currWord.example_en || ''}</div>
@@ -717,8 +775,8 @@
             </div>
           </div>
           <div class="btn-group">
-            <button class="btn btn-secondary" onclick="markSRS(false)">不熟悉 (降回階段1)</button>
-            <button class="btn" onclick="markSRS(true)">記住了 (晉級下一階段)</button>
+            <button class="btn btn-secondary" onclick="markSRS(false)">不熟悉</button>
+            <button class="btn" onclick="markSRS(true)">記住了</button>
           </div>
         `;
       }
@@ -763,7 +821,63 @@
       saveWords();
     }
 
-    /* ---------------- 2. 錯誤列表與星級練習 ---------------- */
+    /* ---------------- 2. 已學習單字卡瀏覽 ---------------- */
+    function filterLearnedWords() {
+      const jlpt = document.getElementById("jlptFilter").value;
+      // 僅篩選 srs_stage > 0 的已學習單字
+      learnedWordsFiltered = words.filter(w => w.srs_stage > 0 && (jlpt === "ALL" || w.level === jlpt));
+      document.getElementById("learnedCardCount").innerText = `已學: ${learnedWordsFiltered.length}`;
+      cardIndex = 0;
+      isFlipped = false;
+      renderLearnedCard();
+    }
+
+    function renderLearnedCard() {
+      const cardEl = document.getElementById("flashcard");
+      if (learnedWordsFiltered.length === 0) {
+        cardEl.innerHTML = `<div style="text-align:center; color:var(--text-sub);">目前沒有符合條件的「已學習」單字，快去完成每日任務吧！</div>`;
+        return;
+      }
+      const item = learnedWordsFiltered[cardIndex];
+      const isStarred = item.starred ? 'starred' : '';
+
+      cardEl.innerHTML = `
+        <span class="level-badge">${item.level} (階段 ${item.srs_stage})</span>
+        <div style="position:absolute; top:15px; right:45px;">
+          <button class="report-btn" onclick="event.stopPropagation(); reportWordError('${item.word}')">⚠️ 回報錯誤</button>
+        </div>
+        <button class="star-btn ${isStarred}" onclick="event.stopPropagation(); toggleStar('${item.word}')">★</button>
+        <div class="word-title" style="margin-top:10px;">${item.word}</div>
+        ${item.other_forms ? `<div class="word-other-forms">(${item.other_forms})</div>` : ''}
+        <div class="word-furigana">${item.reading || ''} <button class="audio-btn" onclick="event.stopPropagation(); speak('${item.word}')">🔊</button></div>
+        <div id="cardBack" class="${isFlipped ? '' : 'hidden'}">
+          <div class="word-meaning">${item.meaning}</div>
+          <div class="example-box">
+            <div style="display:flex; align-items:center; justify-content:flex-end;">
+              ${item.example_ja ? `<button class="audio-btn" onclick="event.stopPropagation(); speak('${item.example_ja}')" style="font-size:0.85rem;">🔊 讀例句</button>` : ''}
+            </div>
+            <div class="example-ja">${item.example_ja || ''}</div>
+            <div class="example-en">${item.example_en || ''}</div>
+          </div>
+        </div>
+        <div style="font-size:0.75rem; color:var(--text-sub); margin-top:15px;">(點擊卡片翻面)</div>
+      `;
+    }
+
+    function flipCard() { isFlipped = !isFlipped; renderLearnedCard(); }
+    function nextCard() { if(learnedWordsFiltered.length === 0) return; isFlipped = false; cardIndex = (cardIndex + 1) % learnedWordsFiltered.length; renderLearnedCard(); }
+    function prevCard() { if(learnedWordsFiltered.length === 0) return; isFlipped = false; cardIndex = (cardIndex - 1 + learnedWordsFiltered.length) % learnedWordsFiltered.length; renderLearnedCard(); }
+
+    function toggleStar(wordText) {
+      const target = words.find(w => w.word === wordText);
+      if (target) {
+        target.starred = !target.starred;
+        saveWords();
+        renderLearnedCard();
+      }
+    }
+
+    /* ---------------- 3. 錯誤列表與點擊顯示學習小卡 ---------------- */
     function getStarRating(count) {
       if (count >= 5) return 3;
       if (count >= 3) return 2;
@@ -785,24 +899,21 @@
 
       const filteredWrong = wrongWords.filter(w => selectedStars.includes(getStarRating(w.wrong_count)));
 
-      document.getElementById("wrongCountText").innerText = `符合條件錯題：${filteredWrong.length} 字`;
-
       if (filteredWrong.length === 0) {
-        container.innerHTML = `<div class="card" style="text-align:center; color:var(--text-sub);">太棒了！目前沒有符合篩選條件的錯誤單字。</div>`;
+        container.innerHTML = `<div class="card" style="text-align:center; color:var(--text-sub);">太棒了！目前沒有符合星級條件的錯題。</div>`;
         return;
       }
 
       container.innerHTML = filteredWrong.map(w => {
         const starNum = getStarRating(w.wrong_count);
-        const starsText = "⭐".repeat(starNum);
         return `
-          <div class="wrong-list-item">
+          <div class="list-item" onclick="openWrongCardModal('${w.word}')">
             <div>
-              <div style="font-size:1.1rem; font-weight:bold;">${w.word} <span style="font-size:0.85rem; color:var(--accent-color);">(${w.reading})</span> <button class="audio-btn" onclick="speak('${w.word}')">🔊</button></div>
+              <div style="font-size:1.1rem; font-weight:bold;">${w.word} <span style="font-size:0.85rem; color:var(--accent-color);">(${w.reading})</span></div>
               <div style="font-size:0.9rem; color:var(--text-sub);">${w.meaning}</div>
             </div>
             <div style="text-align:right;">
-              <div class="star-tag">${starsText}</div>
+              <div class="star-tag">${"⭐".repeat(starNum)}</div>
               <div style="font-size:0.75rem; color:var(--text-sub);">錯 ${w.wrong_count} 次</div>
             </div>
           </div>
@@ -810,148 +921,92 @@
       }).join('');
     }
 
-    let wrongPracticeList = [];
-    let wrongPracticeIdx = 0;
+    function openWrongCardModal(wordText) {
+      const target = words.find(w => w.word === wordText);
+      const modal = document.getElementById("wrongCardModal");
+      if (!target) return;
 
-    function startWrongPractice() {
-      const selectedStars = getSelectedStars();
-      wrongPracticeList = words.filter(w => (w.wrong_count || 0) > 0 && selectedStars.includes(getStarRating(w.wrong_count)))
-                               .sort(() => 0.5 - Math.random());
-
-      wrongPracticeIdx = 0;
-      const area = document.getElementById("wrongPracticeArea");
-
-      if (wrongPracticeList.length === 0) {
-        alert("目前沒有符合星級條件的錯題可供練習！");
-        area.classList.add("hidden");
-        return;
-      }
-
-      area.classList.remove("hidden");
-      renderWrongPracticeCard();
-    }
-
-    function renderWrongPracticeCard() {
-      const area = document.getElementById("wrongPracticeArea");
-      if (wrongPracticeIdx >= wrongPracticeList.length) {
-        area.innerHTML = `
-          <div style="text-align:center;">
-            <h3>🎉 錯題專項練習完成！</h3>
-            <button class="btn" style="margin-top:10px;" onclick="document.getElementById('wrongPracticeArea').classList.add('hidden')">關閉練習</button>
-          </div>
-        `;
-        renderWrongList();
-        return;
-      }
-
-      const curr = wrongPracticeList[wrongPracticeIdx];
-      const wrongMeanings = words.filter(w => w.word !== curr.word).map(w => w.meaning).filter(Boolean).sort(() => 0.5 - Math.random()).slice(0, 3);
-      const options = [curr.meaning, ...wrongMeanings].sort(() => 0.5 - Math.random());
-
-      area.innerHTML = `
+      modal.classList.remove("hidden");
+      modal.innerHTML = `
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-          <span class="tag" style="background:rgba(239, 68, 68, 0.2); color:var(--accent-red);">錯題強化 (${wrongPracticeIdx + 1}/${wrongPracticeList.length})</span>
-          <span class="star-tag">${"⭐".repeat(getStarRating(curr.wrong_count))}</span>
+          <span class="tag" style="background:rgba(239, 68, 68, 0.2); color:var(--accent-red);">錯題學習小卡</span>
+          <button class="btn btn-secondary" style="padding:4px 10px; font-size:0.8rem;" onclick="document.getElementById('wrongCardModal').classList.add('hidden')">關閉</button>
         </div>
-        <div style="font-size:1.6rem; font-weight:bold;">${curr.word} <span style="font-size:1rem; color:var(--accent-color);">(${curr.reading})</span> <button class="audio-btn" onclick="speak('${curr.word}')">🔊</button></div>
-        
-        <div class="example-box" style="margin-top:10px;">
+        <div style="font-size:1.8rem; font-weight:bold;">${target.word} <button class="audio-btn" onclick="speak('${target.word}')">🔊</button></div>
+        <div style="color:var(--accent-color); font-size:1.1rem; margin-bottom:8px;">${target.reading || ''}</div>
+        <div style="font-size:1.2rem; font-weight:bold; margin-bottom:10px;">${target.meaning}</div>
+        <div class="example-box">
           <div style="display:flex; align-items:center; justify-content:space-between;">
             <span style="font-size:0.85rem; color:var(--accent-color);">例句：</span>
-            ${curr.example_ja ? `<button class="audio-btn" onclick="speak('${curr.example_ja}')" style="font-size:0.85rem;">🔊 讀例句</button>` : ''}
+            ${target.example_ja ? `<button class="audio-btn" onclick="speak('${target.example_ja}')" style="font-size:0.85rem;">🔊 讀例句</button>` : ''}
           </div>
-          <div class="example-ja">${curr.example_ja || ''}</div>
-          <div class="example-en">${curr.example_en || ''}</div>
+          <div class="example-ja">${target.example_ja || '無例句'}</div>
+          <div class="example-en">${target.example_en || ''}</div>
         </div>
-
-        <div class="quiz-options">
-          ${options.map(opt => `<button class="option-btn" onclick="checkWrongPractice(this, '${opt}', '${curr.meaning}')">${opt}</button>`).join('')}
+        <div style="margin-top:15px; display:flex; justify-content:flex-end;">
+          <button class="btn" onclick="clearWrongCount('${target.word}')">✅ 我已經學會了 (清除錯題)</button>
         </div>
       `;
+      modal.scrollIntoView({ behavior: 'smooth' });
     }
 
-    function checkWrongPractice(btn, selected, correct) {
-      const options = btn.parentElement.querySelectorAll('.option-btn');
-      options.forEach(b => b.disabled = true);
-      const curr = wrongPracticeList[wrongPracticeIdx];
-
-      if (selected === correct) {
-        btn.classList.add('correct');
-        if (curr.wrong_count > 0) curr.wrong_count--;
-        saveWords();
-        setTimeout(() => { wrongPracticeIdx++; renderWrongPracticeCard(); }, 1200);
-      } else {
-        btn.classList.add('wrong');
-        options.forEach(b => { if (b.innerText === correct) b.classList.add('correct'); });
-        curr.wrong_count++;
-        saveWords();
-        setTimeout(() => { wrongPracticeIdx++; renderWrongPracticeCard(); }, 2000);
-      }
-    }
-
-    /* ---------------- 3. 單字卡瀏覽 ---------------- */
-    function renderFlashCard() {
-      if (filteredWords.length === 0) {
-        document.getElementById("flashcard").innerHTML = `<div>目前沒有符合條件的單字</div>`;
-        return;
-      }
-      const item = filteredWords[cardIndex];
-      const isStarred = item.starred ? 'starred' : '';
-
-      document.getElementById("flashcard").innerHTML = `
-        <span class="level-badge">${item.level || 'N5'} ${item.pos ? '| ' + item.pos : ''}</span>
-        <button class="star-btn ${isStarred}" onclick="event.stopPropagation(); toggleStar('${item.word}')">★</button>
-        <div class="word-title">${item.word}</div>
-        ${item.other_forms ? `<div class="word-other-forms">(${item.other_forms})</div>` : ''}
-        <div class="word-furigana">${item.reading || ''} <button class="audio-btn" onclick="event.stopPropagation(); speak('${item.word}')">🔊</button></div>
-        <div id="cardBack" class="${isFlipped ? '' : 'hidden'}">
-          <div class="word-meaning">${item.meaning}</div>
-          <div class="example-box">
-            <div style="display:flex; align-items:center; justify-content:flex-end;">
-              ${item.example_ja ? `<button class="audio-btn" onclick="event.stopPropagation(); speak('${item.example_ja}')" style="font-size:0.85rem;">🔊 讀例句</button>` : ''}
-            </div>
-            <div class="example-ja">${item.example_ja || ''}</div>
-            <div class="example-en">${item.example_en || ''}</div>
-          </div>
-        </div>
-        <div style="font-size:0.75rem; color:var(--text-sub); margin-top:15px;">(點擊卡片翻面)</div>
-      `;
-    }
-
-    function flipCard() { isFlipped = !isFlipped; renderFlashCard(); }
-    function nextCard() { isFlipped = false; cardIndex = (cardIndex + 1) % filteredWords.length; renderFlashCard(); }
-    function prevCard() { isFlipped = false; cardIndex = (cardIndex - 1 + filteredWords.length) % filteredWords.length; renderFlashCard(); }
-
-    function toggleStar(wordText) {
+    function clearWrongCount(wordText) {
       const target = words.find(w => w.word === wordText);
       if (target) {
-        target.starred = !target.starred;
+        target.wrong_count = 0;
         saveWords();
-        renderFlashCard();
+        document.getElementById("wrongCardModal").classList.add("hidden");
+        renderWrongList();
       }
     }
 
-    function filterWords() {
-      const jlpt = document.getElementById("jlptFilter").value;
-      filteredWords = words.filter(w => (jlpt === "ALL" || w.level === jlpt));
-      cardIndex = 0;
-      isFlipped = false;
-      renderFlashCard();
+    /* ---------------- 4. 略過清單管理 ---------------- */
+    function renderSkipList() {
+      const container = document.getElementById("skipListContainer");
+      const skippedWords = words.filter(w => w.skipped);
+
+      if (skippedWords.length === 0) {
+        container.innerHTML = `<div class="card" style="text-align:center; color:var(--text-sub);">目前沒有被略過的單字。</div>`;
+        return;
+      }
+
+      container.innerHTML = skippedWords.map(w => `
+        <div class="list-item">
+          <div>
+            <div style="font-size:1.1rem; font-weight:bold;">${w.word} <span style="font-size:0.85rem; color:var(--accent-color);">(${w.reading})</span> <button class="audio-btn" onclick="speak('${w.word}')">🔊</button></div>
+            <div style="font-size:0.9rem; color:var(--text-sub);">${w.meaning}</div>
+          </div>
+          <div>
+            <button class="btn" style="padding:6px 12px; font-size:0.85rem;" onclick="restoreWord('${w.word}')">恢復學習</button>
+          </div>
+        </div>
+      `).join('');
     }
 
-    /* ---------------- 4. 配對遊戲 ---------------- */
+    function restoreWord(wordText) {
+      const target = words.find(w => w.word === wordText);
+      if (target) {
+        target.skipped = false;
+        saveWords();
+        renderSkipList();
+      }
+    }
+
+    /* ---------------- 5. 配對遊戲 (10個單字) ---------------- */
     let selectedMatchCard = null;
     function startMatchGame() {
       const grid = document.getElementById("matchGrid");
       grid.innerHTML = "";
       if (words.length === 0) return;
-      const sample = [...words].sort(() => 0.5 - Math.random()).slice(0, 4);
+
+      const sample = [...words].sort(() => 0.5 - Math.random()).slice(0, 10);
       let items = [];
       sample.forEach(w => {
         items.push({ key: w.word, text: w.word, type: 'jp' });
         items.push({ key: w.word, text: w.meaning, type: 'zh' });
       });
       items.sort(() => 0.5 - Math.random());
+
       items.forEach(item => {
         const div = document.createElement('div');
         div.className = 'match-card';
